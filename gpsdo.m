@@ -508,7 +508,7 @@ classdef gpsdo<handle
             if obj.armed && ~armed_now
                 obj.armed = 0; 
                 obj.atCon = 0;
-                %cmMonObj.update(['GPSDO' int2str(obj.gpsdoNr) ' fired at ' datestr(obj.armTime,13)]);
+                cmMonObj.update(['GPSDO' int2str(obj.gpsdoNr) ' fired at ' datestr(obj.armTime,13)]);
             end
         end
         

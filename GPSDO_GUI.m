@@ -224,7 +224,7 @@ if handles.gps1.connected
     guidata(handles.guifig, handles);
 end 
 
-function TmrFcn1UpdateGpsInfo(~,~,handles) %Timer functio
+function TmrFcn1UpdateGpsInfo(~,~,handles) %Timer function
 handles = guidata(handles);
 if handles.gps1.connected
     
@@ -283,55 +283,93 @@ handles = guidata(handles);
 date = datestr(now,24);
 time = datestr(now,13);
 fid = fopen('armtime.cfg');
+
+%Search for armtime date and time in the artime.cfg file
 while 1
     tline = fgetl(fid);
-    if strfind(tline, 'Date=')>0;
+    if strfind(tline, 'Date=')>0;     %Find string Date
         temp_datestr = tline(6:end);
     end
     if strfind(tline, 'Arm_Time=')>0;
-        temp_timestr = tline(10:end);
+        temp_timestr = tline(10:end); %Find string Arm_Time
     end    
     if ~ischar(tline)
        break
     end
 end
 
-%temp_timestr = fgetl(fid);
-fclose(fid);
-temp_time = datenum(temp_timestr);
+fclose(fid); %Close .cfg file
 
+temp_time = datenum(temp_timestr); %Integer representation of Time string 
 
-if (temp_time >= datenum(time)) 
-    if strcmp(temp_datestr,date)
-   
-        if (handles.gpsdo1.armTime ~= temp_time) 
-            if ~handles.gpsdo1.atCon;     
-            %armTimeStr = temp_timestr;
-           % handles.armTime = temp_time;
-                handles.armTime = temp_time;
-                armTimeStr = datestr(handles.armTime,13);
+if strcmp(temp_datestr,date)       %If correct date
+    if (temp_time > datenum(time)) %And time is in future (> current time)
+    
+        % if ~handles.gpsdo1.atCon;   %Not using auto_arm button
+            if (handles.gpsdo1.armTime ~= temp_time) %If the new armtime is different than stored value
+                    
+                handles.gpsdo1.armed = 1;
+                handles.armTime = temp_time;      %Global armtime set to .cfg armtime
+                armTimeStr = datestr(handles.armTime,13);   %String format of armtime
 
-                if ~handles.gpsdo1.armed    
-                    %handles.gpsdo1.armed = 1;
-                    handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
-                    set(handles.edit_armTime,'String',armTimeStr);
-                elseif handles.gpsdo1.armed
-  
-                    handles.gpsdo1.armGPSDO(handles.cmMon,'00:00:00');      
-                    pause(1);
-                    handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
-                    set(handles.edit_armTime,'String',armTimeStr);
-                end
+%                 if ~handles.gpsdo1.armed          %If the gpsdo is not armed
+
+                    handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr); %Arm the Gpsdo
+                    for n=1:50  %Ensure the armed bit is high
+                        
+                        [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
+                        rtc_reg = hex2bin(rtc_reg);            
+                        armed_now = str2double(rtc_reg(end-2));
+                        
+                        handles.cmMon.update(rtc_reg(end-2));
+                        
+                        if ~armed_now                   
+                            handles.cmMon.update('Ish-u'); 
+                            handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
+                        else
+                            handles.cmMon.update('It was armed .. apparently');
+                            break;
+                        end
+                        pause(1);
+                    end
+                    set(handles.edit_armTime,'String',armTimeStr);     %Edit box displays new armtime
+                
             end
 
-        %handles.cmMon.update(['GPSDO Armed 4: ' datestr(handles.gpsdo1.armTime,13)]);
+        %handles.cmMon.update(['GPSDO Armed for: ' datestr(handles.gpsdo1.armTime,13)]);
+       % end
+    end
+end
+
+if handles.gpsdo1.armed
+    if handles.gpsdo1.armTime > datenum(time)
+        for n=1:50  %Ensure the armed bit is high
+                        
+                        [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
+                        rtc_reg = hex2bin(rtc_reg);            
+                        armed_now = str2double(rtc_reg(end-2));
+                        
+                       
+                        
+                        if ~armed_now                   
+                            handles.cmMon.update('Ish-u'); 
+                            handles.gpsdo1.armGPSDO(handles.cmMon,datestr(handles.armTime,13));
+                        else
+                            
+                            break;
+                        end
+                        pause(1);
         end
     end
 end
 
-
 if (handles.gpsdo1.connected)
-    if handles.gpsdo1.armed, handles.gpsdo1.isGPSDOarmed(handles.cmMon); end;
+    if handles.gpsdo1.armed
+       
+        handles.gpsdo1.isGPSDOarmed(handles.cmMon); 
+    
+    
+    end;
     %if handles.gpsdo1.armed, armTime = handles.gpsdo1.armTime; end;
 end
 
@@ -394,31 +432,57 @@ function pushbutton_autoArm_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_autoArm (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.gpsdo1.atCon = 1;
+
 handles.armTime = now+10/(24*60*60);
 armTimeStr = datestr(handles.armTime,13);
 %armTimeStr = armTimeStr(end-7:end);
 
 %handles.armTime = datenum(armTimeStr);
 set(handles.edit_armTime,'String',armTimeStr);
-if ~handles.gpsdo1.armed    
 
+if ~handles.gpsdo1.armed    
+    
     handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
     set(handles.edit_armTime,'String',armTimeStr);    
-    
+    for n=1:50
+    	
+        [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
+        rtc_reg = hex2bin(rtc_reg);            
+        armed_now = str2double(rtc_reg(end-2));
+        pause(1);
+        if ~armed_now
+
+            handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
+            handles.cmMon.update('Ish-u');
+
+
+        else
+            handles.cmMon.update('Bit went high A');
+            break;
+        end
+    end
     
     
 else    
     
-    handles.gpsdo1.armGPSDO(handles.cmMon,'00:00:00');
-    pause(1.5);
-    handles.gpsdo1.armed = 0;
-    handles.gpsdo1.atCon = 1;
-    
-    handles.armTime = now+10/(24*60*60);
-    armTimeStr = datestr(handles.armTime,13);   
-    
     handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
+    for n=1:50
+    	
+        [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
+        rtc_reg = hex2bin(rtc_reg);            
+        armed_now = str2double(rtc_reg(end-2));
+        pause(1);
+        if ~armed_now
+
+            handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
+            handles.cmMon.update('Ish-u');
+
+
+        else
+            handles.cmMon.update('Bit went high B');
+            break;
+        end
+    end
     set(handles.edit_armTime,'String',armTimeStr);
     
     
