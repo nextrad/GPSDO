@@ -26,7 +26,7 @@ function varargout = GPSDO_GUI(varargin)
 
 % Edit the above text to modify the response to help GPSDO_GUI
 
-% Last Modified by GUIDE v2.5 09-Nov-2017 14:54:57
+% Last Modified by GUIDE v2.5 09-Jan-2018 16:10:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -200,27 +200,27 @@ handles = guidata(handles);
 if handles.gps1.connected
     
     handles.gps1.position_message(handles.cmMon);
-    if handles.gps1.ser.BytesAvailable > 400
-        try
-            handles.gps1.position_message(handles.cmMon);    
-        catch
-   
-        end
-        
-        fid = fopen('gps_info.cfg', 'w'); 
-        fwrite(fid, ['Time=' handles.gps1.time double(sprintf('\n')) ...
-            'Date=' handles.gps1.date double(sprintf('\n')) ...
-            '# Lat/Long in unsigned notation - Change to signed and multiply by 90/324e6' double(sprintf('\n')) ...
-            'Current_Lat=' num2str(handles.gps1.lat) double(sprintf('\n')) ...
-            '# ' num2str(handles.gps1.latread) double(sprintf('\n')) ...
-            'Current_Long=' num2str(handles.gps1.long) double(sprintf('\n')) ...
-            '# ' num2str(handles.gps1.longread) double(sprintf('\n')) ...
-            'Current_Alt=' num2str(handles.gps1.height) double(sprintf('\n'))...
-            'Pos_Hold_Lat=' num2str(handles.gps1.pos_hold_lat) double(sprintf('\n')) ...
-            'Pos_Hold_Long=' num2str(handles.gps1.pos_hold_long) double(sprintf('\n')) ...
-            'Pos_Hold_Alt=' num2str(handles.gps1.pos_hold_alt)]);
-        fclose(fid);
-    end
+%     if handles.gps1.ser.BytesAvailable > 400
+%         try
+%             handles.gps1.position_message(handles.cmMon);    
+%         catch
+%    
+%         end
+%         
+%         fid = fopen('gps_info.cfg', 'w'); 
+%         fwrite(fid, ['Time=' handles.gps1.time double(sprintf('\n')) ...
+%             'Date=' handles.gps1.date double(sprintf('\n')) ...
+%             '# Lat/Long in unsigned notation - Change to signed and multiply by 90/324e6' double(sprintf('\n')) ...
+%             'Current_Lat=' num2str(handles.gps1.lat) double(sprintf('\n')) ...
+%             '# ' num2str(handles.gps1.latread) double(sprintf('\n')) ...
+%             'Current_Long=' num2str(handles.gps1.long) double(sprintf('\n')) ...
+%             '# ' num2str(handles.gps1.longread) double(sprintf('\n')) ...
+%             'Current_Alt=' num2str(handles.gps1.height) double(sprintf('\n'))...
+%             'Pos_Hold_Lat=' num2str(handles.gps1.pos_hold_lat) double(sprintf('\n')) ...
+%             'Pos_Hold_Long=' num2str(handles.gps1.pos_hold_long) double(sprintf('\n')) ...
+%             'Pos_Hold_Alt=' num2str(handles.gps1.pos_hold_alt)]);
+%         fclose(fid);
+     %end
     guidata(handles.guifig, handles);
 end 
 
@@ -282,23 +282,44 @@ function TmrFcn1ArmTime(~,~,handles) %Timer function
 handles = guidata(handles);
 date = datestr(now,24);
 time = datestr(now,13);
-fid = fopen('armtime.cfg');
+fid = fopen('NeXtRAD.ini');
 
-%Search for armtime date and time in the artime.cfg file
+%Search for armtime date and time in the NeXtRAD.ini file
 while 1
     tline = fgetl(fid);
-    if strfind(tline, 'Date=')>0;     %Find string Date
-        temp_datestr = tline(6:end);
+    if strfind(tline, 'YEAR = ')>0;     %Find string Date
+        ayear = tline(8:end);
     end
-    if strfind(tline, 'Arm_Time=')>0;
-        temp_timestr = tline(10:end); %Find string Arm_Time
-    end    
+    
+    if strfind(tline, 'MONTH = ')>0;     %Find string Date
+        amonth = tline(9:end);
+    end
+    
+    if strfind(tline, 'DAY = ')>0;     %Find string Date
+        aday = tline(7:end);
+    end
+    
+    if strfind(tline, 'HOUR = ')>0;
+        ahour = tline(8:end); %Find string Arm_Time
+    end  
+    
+    if strfind(tline, 'MINUTE = ')>0;
+        aminute = tline(10:end); %Find string Arm_Time
+    end
+    
+    if strfind(tline, 'SECOND = ')>0;
+        asecond = tline(10:end); %Find string Arm_Time
+    end
+    
     if ~ischar(tline)
        break
     end
 end
 
-fclose(fid); %Close .cfg file
+fclose(fid); %Close .ini file
+
+temp_datestr = [aday '/' amonth '/' ayear];
+temp_timestr = [ahour ':' aminute ':' asecond];
 
 temp_time = datenum(temp_timestr); %Integer representation of Time string 
 
@@ -321,16 +342,16 @@ if strcmp(temp_datestr,date)       %If correct date
                         rtc_reg = hex2bin(rtc_reg);            
                         armed_now = str2double(rtc_reg(end-2));
                         
-                        handles.cmMon.update(rtc_reg(end-2));
+                        %handles.cmMon.update(rtc_reg(end-2));
                         
                         if ~armed_now                   
-                            handles.cmMon.update('Ish-u'); 
+                            handles.cmMon.update('Waiting for Arm'); 
                             handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
                         else
-                            handles.cmMon.update('It was armed .. apparently');
+                            
                             break;
                         end
-                        pause(1);
+                        pause(0.05);
                     end
                     set(handles.edit_armTime,'String',armTimeStr);     %Edit box displays new armtime
                 
@@ -348,30 +369,31 @@ if handles.gpsdo1.armed
                         [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
                         rtc_reg = hex2bin(rtc_reg);            
                         armed_now = str2double(rtc_reg(end-2));
-                        
-                       
-                        
+            
                         if ~armed_now                   
-                            handles.cmMon.update('Ish-u'); 
+                           
                             handles.gpsdo1.armGPSDO(handles.cmMon,datestr(handles.armTime,13));
                         else
                             
                             break;
                         end
-                        pause(1);
+                        pause(0.05);
         end
+        
     end
+   
 end
 
 if (handles.gpsdo1.connected)
-    if handles.gpsdo1.armed
+        if handles.gpsdo1.armed
        
-        handles.gpsdo1.isGPSDOarmed(handles.cmMon); 
+            handles.gpsdo1.isGPSDOarmed(handles.cmMon); 
     
     
-    end;
-    %if handles.gpsdo1.armed, armTime = handles.gpsdo1.armTime; end;
+        end
+        %if handles.gpsdo1.armed, armTime = handles.gpsdo1.armTime; end;
 end
+
 
 if (handles.gpsdo2.connected)
     if handles.gpsdo2.armed, handles.gpsdo2.isGPSDOarmed(handles.cmMon); end;
@@ -444,47 +466,45 @@ if ~handles.gpsdo1.armed
     
     handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
     set(handles.edit_armTime,'String',armTimeStr);    
-    for n=1:50
-    	
-        [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
-        rtc_reg = hex2bin(rtc_reg);            
-        armed_now = str2double(rtc_reg(end-2));
-        pause(1);
-        if ~armed_now
-
-            handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
-            handles.cmMon.update('Ish-u');
-
-
-        else
-            handles.cmMon.update('Bit went high A');
-            break;
-        end
-    end
+%     for n=1:50
+%     	
+%         [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
+%         rtc_reg = hex2bin(rtc_reg);            
+%         armed_now = str2double(rtc_reg(end-2));
+%         
+%         if ~armed_now
+% 
+%             handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
+%            
+%         else
+%             
+%             break;
+%         end
+%         pause(0.05);
+%     end
     
     
-else    
-    
-    handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
-    for n=1:50
-    	
-        [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
-        rtc_reg = hex2bin(rtc_reg);            
-        armed_now = str2double(rtc_reg(end-2));
-        pause(1);
-        if ~armed_now
-
-            handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
-            handles.cmMon.update('Ish-u');
-
-
-        else
-            handles.cmMon.update('Bit went high B');
-            break;
-        end
-    end
-    set(handles.edit_armTime,'String',armTimeStr);
-    
+% else    
+%     
+%     handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
+%     for n=1:50
+%     	
+%         [~, ~, ~, ~, rtc_reg,~]  = handles.gpsdo1.serialObj.readRegister( '36', '0');
+%         rtc_reg = hex2bin(rtc_reg);            
+%         armed_now = str2double(rtc_reg(end-2));
+%        
+%         if ~armed_now
+% 
+%             handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr);
+%             
+%         else
+%            
+%             break;
+%         end
+%          pause(0.05);
+%     end
+%     set(handles.edit_armTime,'String',armTimeStr);
+%     
     
 end
 %if handles.gpsdo1.connected, handles.gpsdo1.armGPSDO(handles.cmMon,armTimeStr); end;
@@ -1673,7 +1693,7 @@ if handles.gps1.connected == 0 %going from disconnected --> connected
         set(handles.gps1_connect,'Value',0);
     end
 elseif handles.gps1.connected == 1 %going from connected --> disconnected
-    handles.gps1.disconnect(handles,handles.cmMon);
+    handles.gps1.disconnect(handles.cmMon);
     stop(handles.tmrgpsinfo);
     stop(handles.tmrgpsconfigupdate);
     set(hObject,'String','GPS Comms d/c','ForegroundColor','Red');
@@ -1764,7 +1784,7 @@ handles.gps1.write_command(handles.cmMon,ins,data);
 pause(4);
 [data,errors]=handles.gps1.read_command(handles.cmMon,ins);
 if ~errors    
-    handles.cmMon.update([sprintf('GPS Response: %s',data)]);
+    handles.cmMon.update([sprintf('GPS Hex Response: %s',data)]);
 else
     handles.cmMon.update('Manual Instruction Error!')
 end
@@ -1819,3 +1839,26 @@ function popupmenu3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+% 
+% if handles.gps1.connected == 1
+%     handles.gps1.initGPS(handles.cmMon);
+% end
+% guidata(hObject, handles);
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+%eventdata  reserved - to be defined in a future version of MATLAB
+%handles    structure with handles and user data (see GUIDATA)
+if handles.gps1.connected == 1
+    handles.gps1.initGPS(handles.cmMon);
+end
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function pushbutton21_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
