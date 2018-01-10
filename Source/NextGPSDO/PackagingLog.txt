@@ -1,0 +1,26 @@
+ant:
+<ant>
+  <mkdir dir="/home/simon/Documents/GPSDO/Source/NextGPSDO/for_redistribution" />
+  <mkdir dir="/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing" />
+  <mkdir dir="/home/simon/Documents/GPSDO/Source/NextGPSDO/for_redistribution_files_only" />
+</ant>
+mcc -o NextGPSDO -W main:NextGPSDO -T link:exe -d /home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing -R '-logfile,mat_log' -v /home/simon/Documents/GPSDO/Source/GPSDO_GUI.m -a /home/simon/Documents/GPSDO/Source/commandMonitor.m -a /home/simon/Documents/GPSDO/Source/disable_all_items.m -a /home/simon/Documents/GPSDO/Source/enable_all_items.m -a /home/simon/Documents/GPSDO/Source/gps.m -a /home/simon/Documents/GPSDO/Source/gpsdo.m -a /home/simon/Documents/GPSDO/Source/GPSDO_GUI.fig -a /home/simon/Documents/GPSDO/Source/gpsdoSerialInterface.m -a /home/simon/Documents/GPSDO/Source/hex2bin.m -a /home/simon/Documents/GPSDO/Source/msgbox_fromFile.m -a /home/simon/Documents/GPSDO/Source/read_comport_config.m -a /home/simon/Documents/GPSDO/Source/softwareDefinedFilter.m 
+Compiler version: 6.0 (R2015a)
+Dependency analysis by REQUIREMENTS.
+[Warning: Adding path "/home/simon/Documents/GPSDO/Source" to Compiler path
+instance.] 
+Parsing file "/home/simon/Documents/GPSDO/Source/GPSDO_GUI.m"
+	(Referenced from: "Compiler Command Line").
+Deleting 5 temporary MEX authorization files.
+Removing: '/tmp/0296bJVzaXG_10603.auth'.
+Removing: '/tmp/0296bF0myrW_10603.auth'.
+Removing: '/tmp/0296bpnn8Vb_10603.auth'.
+Removing: '/tmp/0296bvRFTqr_10603.auth'.
+Removing: '/tmp/0296bbMyKVG_10603.auth'.
+Generating file "/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/readme.txt".
+Generating file "/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/run_NextGPSDO.sh".
+Packaging...
+Creating the bundle...
+Web based installer created at /home/simon/Documents/GPSDO/Source/NextGPSDO/for_redistribution/NextGPSDO.install.
+Packaging complete.
+Elapsed packaging time was: 1 minutes and 10 seconds.

@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="2602079608" file="/home/simon/Documents/GPSDO/NextGPSDO.prj" location="/home/simon/Documents/GPSDO" name="NextGPSDO" preferred-package-location="/home/simon/Documents/GPSDO/NextGPSDO/for_redistribution" preferred-package-type="package.type.install" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="1158737923" file="/home/simon/Documents/GPSDO/Source/NextGPSDO.prj" location="/home/simon/Documents/GPSDO/Source" name="NextGPSDO" preferred-package-location="/home/simon/Documents/GPSDO/Source/NextGPSDO/for_redistribution" preferred-package-type="package.type.install" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>NextGPSDO</param.appname>
     <param.icon>${PROJECT_ROOT}/GPSDO_GUI_resources/icon.ico</param.icon>
     <param.icons>
@@ -92,14 +92,15 @@
       <file>${PROJECT_ROOT}/Filter_Config_Files</file>
       <file>${PROJECT_ROOT}/Log Files</file>
       <file>${PROJECT_ROOT}/Log_Files</file>
+      <file>${PROJECT_ROOT}/NeXtRAD.ini</file>
       <file>${PROJECT_ROOT}/comport.cfg</file>
       <file>${PROJECT_ROOT}/gps_info.cfg</file>
     </fileset.package>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="splash.png" optional="false">/home/simon/Documents/GPSDO/NextGPSDO/for_testing/splash.png</file>
-      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="run_NextGPSDO.sh" optional="false">/home/simon/Documents/GPSDO/NextGPSDO/for_testing/run_NextGPSDO.sh</file>
-      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="NextGPSDO" optional="false">/home/simon/Documents/GPSDO/NextGPSDO/for_testing/NextGPSDO</file>
-      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="readme.txt" optional="true">/home/simon/Documents/GPSDO/NextGPSDO/for_testing/readme.txt</file>
+      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="readme.txt" optional="true">/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/readme.txt</file>
+      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="splash.png" optional="false">/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/splash.png</file>
+      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="run_NextGPSDO.sh" optional="false">/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/run_NextGPSDO.sh</file>
+      <file location="${PROJECT_ROOT}/NextGPSDO/for_testing" name="NextGPSDO" optional="false">/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/NextGPSDO</file>
     </build-deliverables>
     <workflow />
     <matlab>
