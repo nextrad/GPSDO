@@ -20,6 +20,8 @@ classdef gps<handle
         pos_hold_lat
         pos_hold_long
         pos_hold_alt
+        pos_latread
+        pos_longread
         mode
         
         latread
@@ -288,7 +290,7 @@ classdef gps<handle
                 Obj.inPosition = 0;
                 Obj.mode = 'Survey Mode';
             else
-                cmMonObj.update('Position mode unknown!');
+                cmMonObj.update('Buffer Read Issue. Toggle GPS Connect Button.');
             end          
         end
         
@@ -452,9 +454,7 @@ classdef gps<handle
         function [data,errors] = savePos(Obj, cmMonObj)
            
             fid = fopen('gps_info.cfg', 'w');
-            Obj.pos_hold_long = Obj.long;
-            Obj.pos_hold_lat = Obj.lat;
-            Obj.pos_hold_alt = Obj.height;
+            
             fwrite(fid, ['# Lat/Long stored as unsigned 32bit integers - Change to signed and multiply by 90/324e6' double(sprintf('\n'))...
                 'TIME = ' Obj.time double(sprintf('\n')) ...
                 'DATE = ' Obj.date double(sprintf('\n')) ...
@@ -465,7 +465,9 @@ classdef gps<handle
                 'HEIGHT = ' num2str(Obj.height) ' cm' double(sprintf('\n')) ...
                 '# Position Hold Values' double(sprintf('\n')) ...
                 'POS_HOLD_LAT = ' num2str(Obj.pos_hold_lat) double(sprintf('\n')) ...
+                '# ' num2str(Obj.pos_latread) double(sprintf('\n')) ...
                 'POS_HOLD_LONG = ' num2str(Obj.pos_hold_long) double(sprintf('\n')) ...
+                '# ' num2str(Obj.pos_longread) double(sprintf('\n')) ...
                 'POS_HOLD_HEIGHT = ' num2str(Obj.pos_hold_alt) ' cm' double(sprintf('\n')) ...
                 '# GPS Config' double(sprintf('\n')) ...
                 'CABLE_DELAY = ' num2str(Obj.cable_delay)]);
@@ -499,25 +501,75 @@ classdef gps<handle
                 if ~ischar(tline)
                    break
                 end
-            end
+             end
+            x = Obj.pos_hold_lat - (Obj.pos_hold_lat >= 2.^(32-1)).*2.^32;    
+            y = Obj.pos_hold_long - (Obj.pos_hold_long >= 2.^(32-1)).*2.^32;
+            Obj.pos_latread = x*(90/324e6);
+            Obj.pos_longread = y*(90/324e6);
         end
         
         function [data,errors] = applyPos(Obj, cmMonObj)
-                  
+            
+            fid = fopen('gps_info.cfg', 'r'); 
+             while 1
+                tline = fgetl(fid);
+                if strfind(tline, 'LATITUDE = ')>0;
+                    pos_hold_lati = tline(12:end);
+                    Obj.pos_hold_lat = str2num(pos_hold_lati);
+                end
+                if strfind(tline, 'LONGITUDE = ')>0;
+                    pos_hold_longi = tline(13:end);
+                    Obj.pos_hold_long = str2num(pos_hold_longi);
+                end    
+                if strfind(tline, 'HEIGHT = ')>0;
+                    pos_hold_alti = tline(10:end-2);
+                    Obj.pos_hold_alt = str2num(pos_hold_alti);
+                end
+                               
+                if ~ischar(tline)
+                   break
+                end
+             end
+            
+            fclose(fid);
+            
+            fid = fopen('gps_info.cfg', 'w');
+            
+            fwrite(fid, ['# Lat/Long stored as unsigned 32bit integers - Change to signed and multiply by 90/324e6' double(sprintf('\n'))...
+                'TIME = ' Obj.time double(sprintf('\n')) ...
+                'DATE = ' Obj.date double(sprintf('\n')) ...
+                '# ' num2str(Obj.latread) double(sprintf('\n')) ...
+                'LATITUDE = ' num2str(Obj.lat) double(sprintf('\n')) ...
+                '# ' num2str(Obj.longread) double(sprintf('\n')) ...
+                'LONGITUDE = ' num2str(Obj.long) double(sprintf('\n')) ...
+                'HEIGHT = ' num2str(Obj.height) ' cm' double(sprintf('\n')) ...
+                '# Position Hold Values' double(sprintf('\n')) ...
+                'POS_HOLD_LAT = ' num2str(Obj.pos_hold_lat) double(sprintf('\n')) ...
+                'POS_HOLD_LONG = ' num2str(Obj.pos_hold_long) double(sprintf('\n')) ...
+                'POS_HOLD_HEIGHT = ' num2str(Obj.pos_hold_alt) ' cm' double(sprintf('\n')) ...
+                '# GPS Config' double(sprintf('\n')) ...
+                'CABLE_DELAY = ' num2str(Obj.cable_delay)]);
+            
+            fclose(fid);
+            
+            cmMonObj.update('Position Hold Parameters Updated');
+            
+            
+            
             new_pos= [dec2hex(Obj.pos_hold_lat,8) dec2hex(Obj.pos_hold_long,8) dec2hex(Obj.pos_hold_alt,8) '00'];         
             Obj.write_command(cmMonObj,'4173',new_pos);
-            pause(3);
-            [data,errors] = Obj.read_command(cmMonObj,'4173');
-            if ~errors
-                cmMonObj.update('Position Hold Parameters updated.');
+            pause(1);
+            %[data,errors] = Obj.read_command(cmMonObj,'4173');
+            %if ~errors
+                
                 x = Obj.pos_hold_lat - (Obj.pos_hold_lat >= 2.^(32-1)).*2.^32;    
                 y = Obj.pos_hold_long - (Obj.pos_hold_long >= 2.^(32-1)).*2.^32;
                 cmMonObj.update([sprintf('LATITUDE : %s',num2str(x*(90/324e6)))]);
                 cmMonObj.update([sprintf('LONGITUDE : %s',num2str(y*(90/324e6)))]);
                 cmMonObj.update([sprintf('ALTITUDE : %s m',num2str(Obj.pos_hold_alt/100))]);
-            else
-                cmMonObj.update('Buffer was in use, press again!');
-            end
+            %else
+               % cmMonObj.update('Buffer was in use, press again!');
+            %end
         end
         
         function [data,errors] = savedPos(Obj, cmMonObj)

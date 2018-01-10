@@ -198,8 +198,10 @@ guidata(handles.guifig, handles);
 function TmrFcnUpdateGpsCfg(~,~,handles)
 handles = guidata(handles);
 if handles.gps1.connected
-    
-    handles.gps1.position_message(handles.cmMon);
+    try
+        handles.gps1.position_message(handles.cmMon);
+    catch
+    end
 %     if handles.gps1.ser.BytesAvailable > 400
 %         try
 %             handles.gps1.position_message(handles.cmMon);    
