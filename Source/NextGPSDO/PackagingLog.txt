@@ -12,15 +12,15 @@ instance.]
 Parsing file "/home/simon/Documents/GPSDO/Source/GPSDO_GUI.m"
 	(Referenced from: "Compiler Command Line").
 Deleting 5 temporary MEX authorization files.
-Removing: '/tmp/0296bJVzaXG_10603.auth'.
-Removing: '/tmp/0296bF0myrW_10603.auth'.
-Removing: '/tmp/0296bpnn8Vb_10603.auth'.
-Removing: '/tmp/0296bvRFTqr_10603.auth'.
-Removing: '/tmp/0296bbMyKVG_10603.auth'.
+Removing: '/tmp/04bc0wjtZuq_19392.auth'.
+Removing: '/tmp/04bc0pmFUYl_19392.auth'.
+Removing: '/tmp/04bc0Q890sh_19392.auth'.
+Removing: '/tmp/04bc0ceAiXc_19392.auth'.
+Removing: '/tmp/04bc0vaZEr8_19392.auth'.
 Generating file "/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/readme.txt".
 Generating file "/home/simon/Documents/GPSDO/Source/NextGPSDO/for_testing/run_NextGPSDO.sh".
 Packaging...
 Creating the bundle...
 Web based installer created at /home/simon/Documents/GPSDO/Source/NextGPSDO/for_redistribution/NextGPSDO.install.
 Packaging complete.
-Elapsed packaging time was: 1 minutes and 10 seconds.
+Elapsed packaging time was: 1 minutes and 5 seconds.

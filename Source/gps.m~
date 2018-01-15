@@ -119,7 +119,7 @@ classdef gps<handle
             
             %send write instruction to serial port
             raw = Obj.get_serial_parity(['4040' cmd data '0D0A']);
-            cmMonObj.update([sprintf('HEX Written to GPS: %s', raw)]);
+            cmMonObj.update('HEX Written to GPS: ' raw);
             errors = 1;
             
             % retry 8x times

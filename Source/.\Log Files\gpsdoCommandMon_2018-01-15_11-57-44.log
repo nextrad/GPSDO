@@ -1,0 +1,29 @@
+2018-01-15 11:57:44	CommandMon Logfile Created.
+2018-01-15 11:57:44	All GPSDOs disconnected.
+2018-01-15 11:57:47	/dev/ttyUSB0 serial object created.
+2018-01-15 11:57:47	GPS 1 is Connected
+2018-01-15 11:57:49	40404764FFDC0D0A
+2018-01-15 11:57:53	Failed to read command!
+2018-01-15 11:57:53	Buffer Read Issue. Toggle GPS Connect Button.
+2018-01-15 11:58:03	GPS disconnected from /dev/ttyUSB0: OK
+2018-01-15 11:58:03	/dev/ttyUSB0 released.
+2018-01-15 11:58:04	/dev/ttyUSB0 serial object created.
+2018-01-15 11:58:04	GPS 1 is Connected
+2018-01-15 11:58:06	40404764FFDC0D0A
+2018-01-15 11:58:18	Position Saved
+2018-01-15 11:58:40	Position Hold Parameters Updated
+2018-01-15 11:58:40	40404173F8B69B3103F608A5008E0D0A
+2018-01-15 11:58:41	LATITUDE : -33.9585
+2018-01-15 11:58:41	LONGITUDE : 18.4599
+2018-01-15 11:58:41	HEIGHT :  m
+2018-01-15 12:05:05	Position Saved
+2018-01-15 12:08:13	Position Saved
+2018-01-15 12:09:49	Position Saved
+2018-01-15 12:12:14	Position Saved
+2018-01-15 12:12:15	Position Saved
+2018-01-15 12:12:15	Position Hold Parameters Updated
+2018-01-15 12:12:15	LATITUDE : -33.9585
+2018-01-15 12:12:15	LONGITUDE : 18.4599
+2018-01-15 12:12:15	HEIGHT :  m
+2018-01-15 12:13:39	Position Saved
+2018-01-15 12:14:33	Position Saved
